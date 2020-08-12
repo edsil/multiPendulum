@@ -24,12 +24,17 @@ let slideWeight;
 let checkArms;
 let pauseButton;
 let checkSpeed;
+let showHelp = false;
 
 var time = 1;
 var traced;
 var fr = 40;
 var selected = -1;
 var maxVel = 0.6;
+var helpText = "- Click and drag the end of each pendulum to change its position \n"
+helpText += "- Hold the SHIFT key while dragging to change the pendulum weight/size \n"
+helpText += "- Hold the ALT / OPTION key while dragging to change the pendulum weight/size \n"
+helpText += "- All those operations can be done with the pendulum moving or paused \n"
 
 
 function setup() {
@@ -61,12 +66,16 @@ function setup() {
   slideArms.position(60, 20);
 
   var playButton = createButton('Reset');
-  playButton.position(20, 45);
+  playButton.position(5, 45);
   playButton.mousePressed(go);
 
   pauseButton = createButton('Pause');
-  pauseButton.position(90, 45);
+  pauseButton.position(60, 45);
   pauseButton.mousePressed(pause);
+
+  showHelpButton = createButton("Show Help");
+  showHelpButton.position(460, 65);
+  showHelpButton.mousePressed(toggleHelp);
 
   text = createP("Dump:");
   text.style('color', col);
@@ -166,6 +175,15 @@ function pause() {
 
 }
 
+function toggleHelp(){
+  if (showHelp) {
+    showHelp = false;
+    showHelpButton.html("Show Help");
+  } else {
+    showHelp = true;
+    showHelpButton.html("Hide Help");
+  }
+}
 
 function setArms() {
   var inPos = PI / 2;
@@ -222,6 +240,9 @@ function draw() {
   trace = checkTrace.checked();
   traceArms = checkArms.checked();
   traceSpeed = checkSpeed.checked();
+
+
+  if (showHelp) text(helpText, 5,15);
 }
 
 function stretchEnd(arm, xe, ye) {
