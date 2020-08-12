@@ -332,22 +332,24 @@ class Arm {
     var x4 = this.X + sin(this.a4 + this.angle) * this.d4;
     var y4 = this.Y + cos(this.a4 + this.angle) * this.d4;
 
-    var blue = abs(5 * this.accel / this.Vel) * 255;
+    var red = abs(this.Vel*3) * 255;
     var green = 0;
-    var red = abs(1 / blue) * 255;
+    var blue = (this.angle/(2*PI));
 
 
     if (traceArms || paused) {
       stroke(125, 50);
-      fill(100, 250);
+      if (selected == this.id) {
+        fill(255,0,0);}
+       else fill(100,250);
       quad(x1, y1, x2, y2, x3, y3, x4, y4);
       fill(0);
       circle(this.X, this.Y, this.width);
       stroke(red, green, blue, 255);
-      fill(red, green, blue, 255);
+      if (selected == this.id) {
+        fill(255,0,0);}
+       else fill(red, green, blue, 255);
       circle(this.X + sin(this.angle) * this.lenght, this.Y + cos(this.angle) * this.lenght, this.weight);
-
-
     }
 
     var x = this.X;
@@ -401,21 +403,22 @@ class Arm {
     var x2 = x1 + sin(this.angle + PI / 2) * this.Vel * (sizeX / (3 * maxVel));
     var y2 = y1 + cos(this.angle + PI / 2) * this.Vel * (sizeX / (3 * maxVel));
     var t1x, t1y, t2x, t2y;
+    var arrowsize = 10;
     if (this.Vel > 0) {
-      t1x = x2 + sin(this.angle + 4 * PI / 3) * (sizeX / 50);
-      t1y = y2 + cos(this.angle + 4 * PI / 3) * (sizeX / 50);
-      t2x = x2 + sin(this.angle - PI / 3) * (sizeX / 50);
-      t2y = y2 + cos(this.angle - PI / 3) * (sizeX / 50);
+      t1x = x2 + sin(this.angle + 4 * PI / 3) * arrowsize;
+      t1y = y2 + cos(this.angle + 4 * PI / 3) * arrowsize;
+      t2x = x2 + sin(this.angle - PI / 3) * arrowsize;
+      t2y = y2 + cos(this.angle - PI / 3) * arrowsize;
     } else {
-      t1x = x2 + sin(this.angle - 4 * PI / 3) * (sizeX / 50);
-      t1y = y2 + cos(this.angle - 4 * PI / 3) * (sizeX / 50);
-      t2x = x2 + sin(this.angle + PI / 3) * (sizeX / 50);
-      t2y = y2 + cos(this.angle + PI / 3) * (sizeX / 50);
+      t1x = x2 + sin(this.angle - 4 * PI / 3) * arrowsize;
+      t1y = y2 + cos(this.angle - 4 * PI / 3) * arrowsize;
+      t2x = x2 + sin(this.angle + PI / 3) * arrowsize;
+      t2y = y2 + cos(this.angle + PI / 3) * arrowsize;
 
     }
 
     push();
-    strokeWeight(5);
+    strokeWeight(2);
     stroke(128);
     line(x1, y1, x2, y2);
     stroke(50);
@@ -467,6 +470,7 @@ class Arm {
     var m1 = this.totalWeight();
     var m2 = other.totalWeight();
     */
+    if(selected == this.id || selected == other.id) return;
     var m1 = this.weight;
     var m2 = other.weight;
 
