@@ -387,8 +387,8 @@ class Arm {
       traced.noFill();
       traced.beginShape();
       traced.curveVertex(this.pmX,this.pmY);
-        traced.curveVertex(this.pmX,this.pmY);
-        traced.curveVertex(this.pX, this.pY);
+      //traced.curveVertex(this.pmX,this.pmY);
+
       traced.curveVertex(this.pX, this.pY);
 
       traced.curveVertex(newPos.x, newPos.y);
