@@ -1,36 +1,28 @@
-let sizeX = 600;
-let sizeY = 600;
-let g = 1; //gravity
-let myArms = [];
-let trace = false;
-let traceArms = true;
-let traceSpeed = false;
-let paused = false;
-let globalDump = 0.01;
-let arms = 4;
-let X = 300;
-let Y = 100;
-let len = 50
-let wid = 6;
-let wei = 100;
+var sizeX, sizeY; //Screen size
+var X, Y; // position of the top of the first arms
+var myArms = []; // Array with each arm details
+// Initial parameters
+var g = 1; //gravity
+var trace = false; //trace the movement of the bobs
+var traceArms = true; // show arms
+var traceSpeed = false; // show arrow with the speed
+var paused = false; // is the program paused
+var globalDump = 0.01; // dumpness - slows down with time
+var arms = 4; // number of arms
+var len = 50 // lenght
+var wid = 2; // width
+var wei = 100; // weight
+let showHelp = false; // Help text is shown
+// Holders for the buttons, sliders, checkboxes
+var slideG, slideArms, slideDump, slideLenght, slideWidth, slideWeight;
+var checkTrace, checkArms, checkSpeed;
+let pauseButton, showHelpButton;
 
-let slideG;
-let slideArms;
-let checkTrace;
-let slideDump;
-let slideLenght;
-let slideWidth
-let slideWeight;
-let checkArms;
-let pauseButton;
-let checkSpeed;
-let showHelp = false;
-
+var traced; //Placehoder for the traced canvas
 var time = 1;
-var traced;
-var fr = 40;
-var selected = -1;
-var maxVel = 0.6;
+var fr = 40; //Frames per second
+var selected = -1; //Which bob is selected
+var maxVel = 0.6; //Maximum velocity
 var helpText = "- Click and drag the end of each pendulum to change its position \n"
 helpText += "- Hold the SHIFT key while dragging to change the pendulum weight/size \n"
 helpText += "- Hold the ALT / OPTION key while dragging to change the pendulum weight/size \n"
@@ -40,16 +32,14 @@ helpText += "- All those operations can be done with the pendulum moving or paus
 function setup() {
   sizeX = windowWidth;
   sizeY = windowHeight - 85;
-  X = int(sizeX/2);
+  X = int(sizeX / 2);
   Y = int(sizeY * 0.15);
   var canvas = createCanvas(sizeX, sizeY);
   traced = createGraphics(sizeX, sizeY);
   canvas.position(0, 80);
 
-
-  var text = createDiv("Gravity:");
-  var col = color(0, 0, 255);
-
+  var text = createP("Gravity:");
+  var col = color(0, 0, 255); //Text Color
   text.style('color', col);
   text.style('margin', 0);
   text.style('padding', 0);
@@ -67,11 +57,11 @@ function setup() {
 
   var playButton = createButton('Reset');
   playButton.position(5, 45);
-  playButton.mousePressed(go);
+  playButton.mousePressed(playSimulation);
 
   pauseButton = createButton('Pause');
   pauseButton.position(60, 45);
-  pauseButton.mousePressed(pause);
+  pauseButton.mousePressed(togglePause);
 
   showHelpButton = createButton("Show Help");
   showHelpButton.position(460, 65);
@@ -138,53 +128,6 @@ function setup() {
   setArms();
 }
 
-function go() {
-  g = slideG.value();
-  arms = slideArms.value();
-  trace = checkTrace.checked();
-  traceArms = checkArms.checked();
-  traceSpeed = checkSpeed.checked();
-  globalDump = slideDump.value();
-  len = slideLenght.value();
-  wid = slideWidth.value();
-  wei = slideWeight.value();
-  setArms();
-  background(255);
-  traced = createGraphics(sizeX, sizeY);
-  pauseButton.html("Pause");
-  paused = false;
-}
-
-function pause() {
-  g = slideG.value();
-  trace = checkTrace.checked();
-  traceArms = checkArms.checked();
-  traceSpeed = checkSpeed.checked();
-  globalDump = slideDump.value();
-  wid = slideWidth.value();
-  if (paused) {
-    pauseButton.html("Pause");
-    paused = false;
-  } else {
-    pauseButton.html("Unpause");
-    for (var a = 0; a < myArms.length; a++) {
-      myArms[a].draw();
-    }
-    paused = true;
-  }
-
-}
-
-function toggleHelp(){
-  if (showHelp) {
-    showHelp = false;
-    showHelpButton.html("Show Help");
-  } else {
-    showHelp = true;
-    showHelpButton.html("Hide Help");
-  }
-}
-
 function setArms() {
   var inPos = PI / 2;
   if (myArms[0]) {
@@ -236,24 +179,55 @@ function draw() {
       stretchEnd(arm.attachedTo, arm.X, arm.Y);
   }
 
-
   trace = checkTrace.checked();
   traceArms = checkArms.checked();
   traceSpeed = checkSpeed.checked();
 
+  if (showHelp) text(helpText, 5, 15);
+}
 
-  if (showHelp) text(helpText, 5,15);
+function playSimulation() {
+  g = slideG.value();
+  arms = slideArms.value();
+  globalDump = slideDump.value();
+  len = slideLenght.value();
+  wid = slideWidth.value();
+  wei = slideWeight.value();
+  setArms();
+  traced = createGraphics(sizeX, sizeY);
+  pauseButton.html("Pause");
+  paused = false;
+}
+
+function togglePause() {
+  g = slideG.value();
+  globalDump = slideDump.value();
+  wid = slideWidth.value();
+  if (paused) {
+    pauseButton.html("Pause");
+    paused = false;
+  } else {
+    pauseButton.html("Unpause");
+    paused = true;
+  }
+}
+
+function toggleHelp() {
+  if (showHelp) {
+    showHelp = false;
+    showHelpButton.html("Show Help");
+  } else {
+    showHelp = true;
+    showHelpButton.html("Hide Help");
+  }
 }
 
 function stretchEnd(arm, xe, ye) {
   var xb = arm.X;
   var yb = arm.Y;
-
   var dX = xb - xe;
   var dY = yb - ye;
-
   arm.lenght = sqrt(dX ** 2 + dY ** 2);
-
   if (dX > 0) {
     arm.angle = acos((dY) / arm.lenght) + PI;
   } else if (dY > 0) {
@@ -261,7 +235,6 @@ function stretchEnd(arm, xe, ye) {
   } else {
     arm.angle = atan((xe - arm.X) / (ye - arm.Y));
   }
-
   arm.rePos({
     x: arm.X,
     y: arm.Y
@@ -292,11 +265,6 @@ function mouseReleased() {
 
 
 
-
-
-
-
-
 class Arm {
   constructor(id, pivot, lenght, width, weight, inPos, inVel, dump) {
     // pivot {x, y} position of the fixed point
@@ -317,8 +285,8 @@ class Arm {
     this.id = id;
     this.pX = -1;
     this.pY = -1;
-    this.pmX=-1
-    this.pmY=-1;
+    this.pmX = -1
+    this.pmY = -1;
     this.setArm(pivot, lenght, width, weight / 5);
   }
 
@@ -327,8 +295,8 @@ class Arm {
     this.relCY = lenght;
     this.X = pivot.x;
     this.Y = pivot.y;
-    this.cX = this.relCX + this.X;
-    this.cY = this.relCY + this.Y;
+    //this.cX = this.relCX + this.X;
+    //this.cY = this.relCY + this.Y;
     this.lenght = lenght;
     this.width = width;
     this.weight = weight;
@@ -340,7 +308,7 @@ class Arm {
     this.d3 = sqrt(this.relCX ** 2 + (this.lenght - this.relCY) ** 2);
     this.a4 = PI - atan(this.relCX / (this.lenght - this.relCY));
     this.d4 = this.d3;
-    this.dir = 1;
+    //this.dir = 1;
   }
 
   draw() {
@@ -353,23 +321,23 @@ class Arm {
     var x4 = this.X + sin(this.a4 + this.angle) * this.d4;
     var y4 = this.Y + cos(this.a4 + this.angle) * this.d4;
 
-    var red = abs(this.Vel*3) * 255;
+    var red = abs(this.Vel * 3) * 255;
     var green = 0;
-    var blue = (this.angle/(2*PI));
+    var blue = (this.angle / (2 * PI));
 
 
     if (traceArms || paused) {
       stroke(125, 50);
       if (selected == this.id) {
-        fill(255,0,0);}
-       else fill(100,250);
+        fill(255, 0, 0);
+      } else fill(100, 250);
       quad(x1, y1, x2, y2, x3, y3, x4, y4);
       fill(0);
       circle(this.X, this.Y, this.width);
       stroke(red, green, blue, 255);
       if (selected == this.id) {
-        fill(255,0,0);}
-       else fill(red, green, blue, 255);
+        fill(255, 0, 0);
+      } else fill(red, green, blue, 255);
       circle(this.X + sin(this.angle) * this.lenght, this.Y + cos(this.angle) * this.lenght, this.weight);
     }
 
@@ -380,20 +348,20 @@ class Arm {
       traced.stroke(red, green, blue, 255);
       traced.fill(red, green, blue, 255);
       traced.strokeWeight(1);
-      if (this.pmX == -1){
-      traced.line(this.pX, this.pY, newPos.x, newPos.y);
-      } else if(this.pmX != this.pX && this.pmX != newPos.x) {
-      //trying to make the trace smoother when there is too much of a jump
-      traced.noFill();
-      traced.beginShape();
-      traced.curveVertex(this.pmX,this.pmY);
-      //traced.curveVertex(this.pmX,this.pmY);
+      if (this.pmX == -1) {
+        traced.line(this.pX, this.pY, newPos.x, newPos.y);
+      } else if (this.pmX != this.pX && this.pmX != newPos.x) {
+        //trying to make the trace smoother when there is too much of a jump
+        traced.noFill();
+        traced.beginShape();
+        traced.curveVertex(this.pmX, this.pmY);
+        //traced.curveVertex(this.pmX,this.pmY);
 
-      traced.curveVertex(this.pX, this.pY);
+        traced.curveVertex(this.pX, this.pY);
 
-      traced.curveVertex(newPos.x, newPos.y);
-      traced.curveVertex(newPos.x, newPos.y);
-      traced.endShape();
+        traced.curveVertex(newPos.x, newPos.y);
+        traced.curveVertex(newPos.x, newPos.y);
+        traced.endShape();
       }
 
       if (this.angle > TWO_PI) this.angle -= TWO_PI;
@@ -401,8 +369,8 @@ class Arm {
       this.pAngle = this.angle;
 
     }
-    this.pmX=this.pX;
-    this.pmY=this.pY;
+    this.pmX = this.pX;
+    this.pmY = this.pY;
     this.pX = newPos.x;
     this.pY = newPos.y;
     if (traceSpeed) this.showSpeed();
@@ -458,14 +426,6 @@ class Arm {
     other.rePos(newPos);
   }
 
-  totalWeight() {
-    var total = this.weight;
-    if (this.attached) {
-      total += this.attached.totalWeight() * abs(cos(this.attached.angle - this.angle));
-    }
-    return (total);
-  }
-
   rePos(newPivot) {
     this.setArm(newPivot, this.lenght, this.width, this.weight);
     if (this.attached) {
@@ -487,11 +447,7 @@ class Arm {
   }
 
   push(other, seconds) {
-    /*
-    var m1 = this.totalWeight();
-    var m2 = other.totalWeight();
-    */
-    if(selected == this.id || selected == other.id) return;
+    if (selected == this.id || selected == other.id) return;
     var m1 = this.weight;
     var m2 = other.weight;
 
