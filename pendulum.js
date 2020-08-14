@@ -16,7 +16,7 @@ let showHelp = false; // Help text is shown
 // Holders for the buttons, sliders, checkboxes
 var slideG, slideArms, slideDump, slideLenght, slideWidth, slideWeight;
 var checkTrace, checkArms, checkSpeed;
-let pauseButton, showHelpButton;
+let pauseButton, showHelpButton, clearTraceButton;
 
 var traced; //Placehoder for the traced canvas
 var time = 1;
@@ -62,6 +62,10 @@ function setup() {
   pauseButton = createButton('Pause');
   pauseButton.position(60, 45);
   pauseButton.mousePressed(togglePause);
+
+  clearTraceButton = createButton("Clear Trace");
+  clearTraceButton.position(5, 65);
+  clearTraceButton.mousePressed(clearTraced);
 
   showHelpButton = createButton("Show Help");
   showHelpButton.position(460, 65);
@@ -263,7 +267,9 @@ function mouseReleased() {
   selected = -1;
 }
 
-
+function clearTraced() {
+  traced.clear();
+}
 
 class Arm {
   constructor(id, pivot, lenght, width, weight, inPos, inVel, dump) {
@@ -287,6 +293,8 @@ class Arm {
     this.pY = -1;
     this.pmX = -1
     this.pmY = -1;
+    //Trace color (random)
+    this.tc = color(int(random(255)),int(random(255)),int(random(255)));
     this.setArm(pivot, lenght, width, weight / 5);
   }
 
@@ -332,12 +340,12 @@ class Arm {
         fill(255, 0, 0);
       } else fill(100, 250);
       quad(x1, y1, x2, y2, x3, y3, x4, y4);
-      fill(0);
+      fill(this.tc);
       circle(this.X, this.Y, this.width);
       stroke(red, green, blue, 255);
       if (selected == this.id) {
         fill(255, 0, 0);
-      } else fill(red, green, blue, 255);
+      } else fill(this.tc);;
       circle(this.X + sin(this.angle) * this.lenght, this.Y + cos(this.angle) * this.lenght, this.weight);
     }
 
@@ -345,8 +353,7 @@ class Arm {
     var y = this.Y + this.lenght;
     var newPos = this.pointIn(x, y);
     if (this.pX != -1 && !paused) {
-      traced.stroke(red, green, blue, 255);
-      traced.fill(red, green, blue, 255);
+      traced.stroke(this.tc);
       traced.strokeWeight(1);
       if (this.pmX == -1) {
         traced.line(this.pX, this.pY, newPos.x, newPos.y);
