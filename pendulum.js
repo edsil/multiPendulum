@@ -23,6 +23,7 @@ var time = 1;
 var fr = 40; //Frames per second
 var selected = -1; //Which bob is selected
 var maxVel = 0.6; //Maximum velocity
+var helpCanvas;
 var helpText = "- Click and drag the end of each pendulum to change its position \n"
 helpText += "- Hold the SHIFT key while dragging to change the pendulum weight/size \n"
 helpText += "- Hold the ALT / OPTION key while dragging to change the pendulum weight/size \n"
@@ -34,8 +35,10 @@ function setup() {
   sizeY = windowHeight - 85;
   X = int(sizeX / 2);
   Y = int(sizeY * 0.15);
-  var canvas = createCanvas(sizeX, sizeY);
+  var canvas = createCanvas(sizeX, sizeY, WEBGL);
   traced = createGraphics(sizeX, sizeY);
+  helpCanvas = createGraphics(sizeX, sizeY);
+  helpCanvas.text(helpText, 5, 15);
   canvas.position(0, 80);
 
   var text = createP("Gravity:");
@@ -152,6 +155,8 @@ function setArms() {
 
 function draw() {
   background(255);
+  pointLight(250, 250, 250, 0, 0, 100);
+  translate(-width / 2, -height / 2);
   for (var a = 0; a < myArms.length; a++) {
     if (!paused) myArms[a].move(time);
     myArms[a].draw();
@@ -187,7 +192,9 @@ function draw() {
   traceArms = checkArms.checked();
   traceSpeed = checkSpeed.checked();
 
-  if (showHelp) text(helpText, 5, 15);
+  if (showHelp) {
+    image(helpCanvas, 0, 0);
+  }
 }
 
 function playSimulation() {
@@ -294,7 +301,7 @@ class Arm {
     this.pmX = -1
     this.pmY = -1;
     //Trace color (random)
-    this.tc = color(int(random(255)),int(random(255)),int(random(255)));
+    this.tc = color(int(random(255)), int(random(255)), int(random(255)));
     this.setArm(pivot, lenght, width, weight / 5);
   }
 
@@ -341,12 +348,20 @@ class Arm {
       } else fill(100, 250);
       quad(x1, y1, x2, y2, x3, y3, x4, y4);
       fill(this.tc);
-      circle(this.X, this.Y, this.width);
+      noStroke();
+      push();
+      translate(this.X, this.Y);
+      sphere(this.width);
+      pop();
       stroke(red, green, blue, 255);
       if (selected == this.id) {
         fill(255, 0, 0);
-      } else fill(this.tc);;
-      circle(this.X + sin(this.angle) * this.lenght, this.Y + cos(this.angle) * this.lenght, this.weight);
+      } else fill(this.tc);
+      noStroke();
+      push();
+      translate(this.X + sin(this.angle) * this.lenght, this.Y + cos(this.angle) * this.lenght)
+      sphere(this.weight);
+      pop();
     }
 
     var x = this.X;
